@@ -77,7 +77,7 @@ double calculateTypeAmplifier(string typeAttacker, FightingPokemon defender) { /
     int n = returnIndex(typeAttacker);
     int m1 = returnIndex(defender.getType1());
 
-    if(!defender.getType2().empty()) {
+    if(defender.getType2() == "NONE") {
         int m2 = returnIndex(defender.getType2());
         return typeEffectiveness[n][m1]*typeEffectiveness[n][m2];
     } else {
@@ -96,12 +96,16 @@ void FightingPokemon::damagePokemon(string typeAttacker, FightingPokemon attacke
         criticalBonus = 2.2;
     }
 
-    int damage = 3*round((((0.4*attacker.getLevel()*criticalBonus+5)*1100*(8/getDefense()))/50 + 6)*randomScalar*typeAmplifier);
+    int damage = 3*round((((0.4*attacker.getLevel()*criticalBonus+5)*1100*(2/getDefense()))/50 + 6)*randomScalar*typeAmplifier);
     setHp(getHp() - damage);
 
     if(typeAmplifier >= 0){
-        if(typeAmplifier >= 2) { cout << "El ataque fue muy efectivo!" << endl; }
-        else if(typeAmplifier <= 0.5) { cout << "El ataque es poco efectivo" << endl; }
+        if(typeAmplifier >= 4) { cout << "El ataque fue muy efectivo! (x4)" << endl; }
+        else if(typeAmplifier >=2) { cout << "El ataque fue efectivo! (x2)" << endl; }
+        else if(typeAmplifier == 0.5) { cout << "El ataque es poco efectivo (x0.5)" << endl; }
+        else if(typeAmplifier == 0.25) { cout << "El ataque es muy poco efectivo (x0.25)" << endl; }
+
+        if(criticalBonus == 2) { cout << "Ataque Crítico!" << endl; }
         cout << damage << " de ataque" << endl;
         cout << getName() << " recibió daño! HP restante: " << getHp() << endl;
     } else {
@@ -112,6 +116,6 @@ void FightingPokemon::damagePokemon(string typeAttacker, FightingPokemon attacke
 void FightingPokemon::printPokemon() {
     DummyMaker::printPokemon();
     cout << "Nivel: " << getLevel() << endl;
-    cout << "EVs (0 -> 510): " << getEvs() << endl;
-    cout << "IVs (0 -> 31): " << getIvs() << endl;
+    cout << "EVs: " << getEvs() << endl;
+    cout << "IVs: " << getIvs() << endl;
 }
