@@ -5,6 +5,8 @@
 
 using namespace std;
 
+/*  Estos dos arreglos se usan para el cálculo de daño con el método damagePokemon()
+*/
 string types[18] = {
         "Normal", "Fighting", "Flying", "Poison", "Ground", "Rock", "Bug", "Ghost", 
         "Steel", "Fire", "Water", "Grass", "Electric", "Psychic", "Ice", "Dragon", "Dark", "Fairy"
@@ -31,6 +33,9 @@ double typeEffectiveness[18][18] = {
         {1.0, 0.5, 1.0, 2.0, 1.0, 1.0, 0.5, 1.0, 2.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.5, 1.0}   // Fairy
     };
 
+/*  Ambos métodos constructores utilizan el método super() heredado de DummyMaker para instanciar
+    un FightingPokemon.
+*/
 FightingPokemon::FightingPokemon()
     : DummyMaker() 
 {
@@ -60,6 +65,7 @@ int FightingPokemon::getEvs() {
     return evs;
 }
 
+//  Insertando un valor string key, busca el índice en el que se encuentra el valor en el arreglo types[]
 int returnIndex(string key) {
     int i = 0;
     while(i<18) {
@@ -73,6 +79,10 @@ int returnIndex(string key) {
     return -1;
 }
 
+/*  Este método calcula el mutiplicador de daño dado los tipos del pokemon defensor y el pokemon atacante
+    usando la tabla typeEffectiveness[]. Si el defensor namas tiene un Pokemon, se hace únicamente un
+    cálculo. En cambio si son dos, se realizan ambos y se multiplican los multiplicadores entre sí.
+*/
 double calculateTypeAmplifier(string typeAttacker, FightingPokemon defender) { // Type1 Pokemon1 vs Type1 Pokemon2
     int n = returnIndex(typeAttacker);
     int m1 = returnIndex(defender.getType1());
