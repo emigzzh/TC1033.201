@@ -5,10 +5,20 @@
 #include <vector>
 #include <algorithm>
 
+// Clase de objetos del proyecto que se utilizan en este código
 #include "DummyMaker.h"
 #include "FightingPokemon.h"
 
 using namespace std;
+
+/*  Modelación del objeto MainClass
+    El propósito de este objeto es tener runa relación de agregación con los objetos DummyMaker.
+
+    Todo MainClass -tiene un- DummyMaker. (Contiene) 
+
+    Un objeto MainClass tiene como único atributo un vector<DummyMaker> cuyo único propósito
+    es almacenar los DummyMaker creados en un vector dinámico para ser accesados posteriormente.
+*/
 
 class MainClass {
     private:
@@ -19,15 +29,26 @@ class MainClass {
             return pokemonList;
         }
 
+        // Permite el comportamiento de añadir un elemento al final del vector<DummyMaker>.
         void addItem(DummyMaker& item) {
             pokemonList.push_back(item);
         }
 };
 
-int DataLoader(MainClass& vectorList){
+/*  DataLoader() tiene la función de cargar la información del csv 'PokeData' y crear objetos
+    DummyMaker con la información de cada renglón del archivo.
+
+    Este tiene la sig. estructura:
+    name,generation,status,type_1,type_2,height,weight,hp,defense,speed
+
+    Tiene como parámetro el objeto MainClass con el modificador & para que sea modificado 
+    dentro de este método y los objetos DummyMaker se van almacenando en este.
+*/
+int DataLoader(MainClass& vectorList) {
     ifstream myFile;
     myFile.open("PokeData.csv");
 
+    // Si falla al accesar al archivo, retorna 1 e imprime un mensaje de error.
     if (!myFile.is_open()) {
         cout << "Error: No se pudo ingresar al archivo." << endl;
         return 1; 
@@ -51,6 +72,9 @@ int DataLoader(MainClass& vectorList){
         getline(ss, defenseStr, ',');
         getline(ss, speedStr, '\n');
 
+        /*  Parse de string a double/int, la información recuperada del csv estrictamente 
+            son cadenas de carácteres.
+         */
         double height = stod(heightStr);
         double weight = stod(weightStr);
         int hp = stoi(hpStr);
@@ -61,10 +85,15 @@ int DataLoader(MainClass& vectorList){
         vectorList.addItem(dummy);
     }
 
+    // Para evitar posibles problemas, se cierra el archivo
     myFile.close();
     return 0;
 }
 
+/*  Método usado en el código main() para buscar un string pasado como parámetro
+    en el arreglo de strings esTipoValido[]. Retorna un booleano true si encuentra el valor,
+    y false si no.
+*/
 bool esTipoValido(string tipo) {
     string tiposValidos[] = {"Normal", "Fire", "Water", "Electric", "Grass", 
                              "Ice", "Fighting", "Poison", "Ground", "Flying", 
@@ -74,7 +103,8 @@ bool esTipoValido(string tipo) {
     return find(begin(tiposValidos), end(tiposValidos), tipo) != end(tiposValidos);
 }
 
-int main(){
+int main() {
+    // Crea el objeto MainClass con el constructor por default de la clase
     MainClass list;
     DataLoader(list);
 
@@ -83,6 +113,14 @@ int main(){
 
     cout << "Bienvenido a la Pokedex! Ingrese el número de alguna de las siguientes opciones para realizar acciones:" << endl;
 
+    /*  Al accesar a la Pokedex, la consola imprime tres opciones que se pueden realizar. Estas se pueden hacer
+        ingresando el número de la opción <n> antepuesto. Si se escribe un número distinto a los proporcionados,
+        imprime un error de opción no disponible y regresa al usuario a esta parte de nuevo.
+
+        El parámetro flag del ciclo while se usa para mantener al usuario dentro de la Pokedex y evitar que
+        tenga que lanzar el programa cada vez que quiera volver a realizar una acción en la Pokedex. Si el usuario
+        al final ingresa que quiere abandonar la Pokedex, flag se vuelve false.
+    */
     while(flag) {
         cout << "\n <1> Mostrar las estadísticas de algún Pokémon" << endl;
         cout << " <2> Simular un combate entre dos Pokemones" << endl;
@@ -90,6 +128,15 @@ int main(){
         cin >> option;
 
         switch(option) {
+
+            /*  Esta opción <1> modela la búsqueda de un Pokemon (objeto DummyMaker) en la Pokedex. 
+                Los pokemones están almacenados en el objeto MainClass list. Este caso permite que el usuario
+                ingrese el nombre pokemon y se almacene en la variable key. 
+
+                Posteriormente realiza la búsqueda usando list.getPokemonList()[i].getName(). Si falla, imprime
+                un mensaje de error y permite al usuario ingresar un nuevo nombre o abandonar y realizar orta opción.
+                Si la búsqueda es exitosa, imprime toda la información del Pokemon invocando printPokemon().
+            */
             case 1: {
                 bool flagCase1 = true;
                 while(flagCase1) {
@@ -121,6 +168,20 @@ int main(){
 
                 break;
             }
+
+            /*  La opción <2> simula un combate primitivo entre dos Pokemones utilizando las clases DummyMaker y FightingPokemon.
+                Pide al usuario ingresar dos Pokemones y como en la opción anterior y adicionalmente ingresar 3 valores
+                adicionales que corresponden a los atributos faltantes (nivel, evs, ivs) para completar FightingPokemon.
+
+                Al tener ambos Pokemones listos, pide al usuario que ingrese con que tipo de ataque atacará al otro Pokemon.
+                Por ejemplo, si el usuario ingresa su Pokemon como "Lucario" (tipo Fighting y Steel), este puede decidir
+                si ataca al otro Pokemon con Fighting o Steel.
+
+                Al comenzar la pelea, se imprimen los atributos de cada FightingPokemon con el método sobrecargado printPokemon()
+                y comienzan a reducirse sus puntos de vida con el método damagePokemon) de FightingPokemon.
+
+                El primer Pokemon en llegar a 0 HP, pierde el combate.
+            */
             case 2: {
                 FightingPokemon attacker;
                 FightingPokemon defender;
@@ -257,6 +318,17 @@ int main(){
                 
                 break;
             }
+            
+            /*  La última opcion <3> permite que el usuario ingresar un nuevo Pokemon, pidiendo valores para cada atributo de este
+                usando la clase DummyMaker. Valida que los valores sean correctos, y dentro de los valores permitidos.
+
+                Por ejemplo, los valores numéricos se espera que sean númericos forzosamente y no cadenas de carácteres, y los
+                tipos del Pokemon se encuentran limitados por un pool de 18 opciones. El método esTipoValido() sirve precisamente
+                para verificar que el tipo ingresado exista y puedo usarse en otras partes del código, como combates.
+
+                El Pokemon creado no se almacena en el archivoCSV para posterior uso después de terminar el programa, sino en el
+                objeto MainClass, por lo que es volátil y no persistente.
+            */
             case 3: {
                 cout << "\nInserte los siguientes parámetros para crear un nuevo Pokemon" << endl;
                 string name, generation, status, type1, type2;
@@ -376,6 +448,9 @@ int main(){
                 dummy.printPokemon();
                 break;
             }
+            
+            /*  En caso de que se ingrese otro número, se direcciona el usuario al caso default.
+            */
             default: {
                 cout << option << " no es una opción válida" << endl;
                 break;
