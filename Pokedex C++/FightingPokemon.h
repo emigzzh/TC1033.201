@@ -7,11 +7,12 @@
 
 using namespace std;
 
+// Fighting Pokemon hereda DummyMaker
 class FightingPokemon : public DummyMaker {
     private:
         int level;
-        int evs; // 0 -> 510
-        int ivs; // 0 -> 31
+        int evs;
+        int ivs;
 
     public:
         FightingPokemon();
@@ -21,7 +22,9 @@ class FightingPokemon : public DummyMaker {
         int getIvs();
         int getEvs();
 
-        void damagePokemon(string , FightingPokemon);
+        void damagePokemon(string, FightingPokemon);
+
+        // Sobrecargado de la clase padre DummyMaker
         void printPokemon() override;
 };
 
